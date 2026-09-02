@@ -1,0 +1,6 @@
+{
+  "name": "Joker Wash & Play",
+  "description": "Lavandería Casino 3D — maqueta interactiva con Three.js",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Joker Wash &amp; Play — Lavandería Casino 3D</title>
+<meta name="description" content="Lavandería Casino 3D — maqueta interactiva con Three.js" />
+<meta property="og:title" content="Joker Wash &amp; Play" />
+<meta property="og:description" content="Lavandería Casino 3D — maqueta interactiva con Three.js" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -74,11 +77,29 @@
   #flash{position:fixed;inset:0;z-index:40;background:#fff;opacity:0;pointer-events:none;
     transition:opacity .35s ease;mix-blend-mode:screen}
 
+  /* Crosshair FPS */
+  #crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:35;
+    width:16px;height:16px;pointer-events:none;display:none}
+  #crosshair::before, #crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.85);
+    box-shadow:0 0 6px rgba(242,193,78,.8)}
+  #crosshair::before{top:7px;left:0;right:0;height:2px}
+  #crosshair::after{left:7px;top:0;bottom:0;width:2px}
+  #crosshair.active{display:block}
+
+  /* HUD / Modo FPS indicator */
+  #fpsHud{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:30;
+    padding:6px 16px;border-radius:999px;background:rgba(12,10,18,.88);border:1px solid var(--linea);
+    font-size:12px;letter-spacing:.8px;color:#f2c14e;pointer-events:none;opacity:0;
+    transition:opacity .25s ease;text-align:center;backdrop-filter:blur(8px)}
+  #fpsHud.show{opacity:1}
+  #fpsHud kbd{background:rgba(255,255,255,.12);padding:2px 6px;border-radius:4px;color:#fff;font-weight:700;margin:0 2px}
+
   @media (max-width:720px){
     .brand h1{font-size:22px}.brand svg{width:36px;height:36px}
     nav button{padding:7px 10px;font-size:11px}
     .panel{left:12px;right:12px;bottom:12px;width:auto}
     #hint{display:none}
+    #fpsHud{top:64px;font-size:10.5px}
   }
 </style>
 </head>
@@ -114,8 +135,10 @@
   <button class="back" id="pBack">← VOLVER AL EXTERIOR</button>
 </aside>
 
+<div id="crosshair"></div>
+<div id="fpsHud"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Moverse · <kbd>SHIFT</kbd> Correr · <kbd>MOUSE</kbd> Mirar · <kbd>F</kbd> o <kbd>ESC</kbd> Salir</div>
 <div id="tip"></div>
-<div id="hint">ARRASTRÁ PARA ORBITAR · SCROLL PARA ZOOM · <b>CLICK EN UNA SECCIÓN PARA ENTRAR</b></div>
+<div id="hint">ARRASTRÁ PARA ORBITAR · <kbd style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px">F</kbd> <b>MODO CAMINAR (WASD)</b> · CLICK EN UNA SECCIÓN PARA ENTRAR</div>
 <div id="flash"></div>
 <div id="load"><div><span id="logoSlot2"></span><p>CARGANDO EL LOCAL…</p></div></div>
 
