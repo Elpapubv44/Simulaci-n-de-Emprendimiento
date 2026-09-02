@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Joker Wash &amp; Play — Lavandería Casino 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --rojo:#e0203c; --oro:#f2c14e; --cian:#3fd8e8; --humo:#a88cff;
+    --neg:#08070b; --panel:rgba(14,12,20,.82); --linea:rgba(242,193,78,.28);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--neg);color:#f4f1ea;
+    font-family:Inter,system-ui,Segoe UI,sans-serif;overflow:hidden}
+  canvas{display:block}
+  #app{position:fixed;inset:0}
+
+  /* ---------- Top bar ---------- */
+  .top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;
+    gap:18px;padding:14px 20px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(8,7,11,.9),rgba(8,7,11,0))}
+  .brand{display:flex;align-items:center;gap:12px;pointer-events:auto}
+  .brand svg{width:46px;height:46px;filter:drop-shadow(0 0 10px rgba(224,32,60,.55))}
+  .brand h1{font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:2px;
+    margin:0;line-height:.95}
+  .brand h1 span{color:var(--rojo)}
+  .brand small{display:block;font-size:10px;letter-spacing:3.5px;color:var(--oro);opacity:.85}
+
+  nav{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto}
+  nav button{font-family:Inter,sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.6px;
+    color:#e9e5dc;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+    padding:9px 14px;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px);
+    transition:.22s ease;white-space:nowrap}
+  nav button:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
+  nav button.on{background:var(--acc,#e0203c);border-color:transparent;color:#fff;
+    box-shadow:0 0 18px -2px var(--acc,#e0203c)}
+
+  /* ---------- Panel info ---------- */
+  .panel{position:fixed;left:20px;bottom:20px;z-index:20;width:min(340px,calc(100vw - 40px));
+    background:var(--panel);border:1px solid var(--linea);border-radius:16px;padding:18px 18px 16px;
+    backdrop-filter:blur(14px);opacity:0;transform:translateY(14px);pointer-events:none;
+    transition:.4s cubic-bezier(.2,.7,.3,1)}
+  .panel.show{opacity:1;transform:none;pointer-events:auto}
+  .panel .kicker{font-size:10px;letter-spacing:3px;color:var(--acc,#f2c14e);font-weight:800}
+  .panel h2{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1.5px;margin:4px 0 6px}
+  .panel p{margin:0 0 12px;font-size:13px;line-height:1.55;color:#c9c4bb}
+  .panel ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .panel li{font-size:11.5px;padding:5px 10px;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09)}
+  .panel .back{margin-top:14px;width:100%;padding:10px;border-radius:10px;cursor:pointer;
+    font-weight:700;font-size:12px;letter-spacing:1px;color:#0b0a0e;border:0;background:var(--oro)}
+  .panel .back:hover{filter:brightness(1.1)}
+
+  /* ---------- Tooltip / hint ---------- */
+  #tip{position:fixed;z-index:25;pointer-events:none;padding:7px 12px;border-radius:999px;
+    background:rgba(10,9,14,.9);border:1px solid var(--linea);font-size:12px;font-weight:600;
+    letter-spacing:.5px;opacity:0;transform:translate(-50%,-160%);transition:opacity .18s}
+  #hint{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:15;
+    font-size:11.5px;letter-spacing:1.6px;color:#8a8492;text-align:center;transition:.3s}
+  #hint b{color:var(--oro)}
+
+  /* ---------- Loader ---------- */
+  #load{position:fixed;inset:0;z-index:60;background:var(--neg);display:grid;place-items:center;
+    transition:opacity .7s ease;text-align:center}
+  #load.off{opacity:0;pointer-events:none}
+  #load svg{width:96px;height:96px;animation:sp 2.6s ease-in-out infinite}
+  #load p{font-family:'Bebas Neue',sans-serif;letter-spacing:5px;font-size:18px;color:var(--oro);margin-top:14px}
+  @keyframes sp{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) scale(1.05)}}
+
+  /* flash de transición */
+  #flash{position:fixed;inset:0;z-index:40;background:#fff;opacity:0;pointer-events:none;
+    transition:opacity .35s ease;mix-blend-mode:screen}
+
+  @media (max-width:720px){
+    .brand h1{font-size:22px}.brand svg{width:36px;height:36px}
+    nav button{padding:7px 10px;font-size:11px}
+    .panel{left:12px;right:12px;bottom:12px;width:auto}
+    #hint{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- LOGO JOKER (reutilizado en loader y barra) -->
+<template id="logo">
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="4" width="44" height="56" rx="7" fill="#12101a" stroke="#f2c14e" stroke-width="2.2"/>
+  <path d="M32 16c-6 0-9 3.6-9 8 0 3 1.6 5.1 4.3 6.6L26 44h12l-1.3-13.4C39.4 29.1 41 27 41 24c0-4.4-3-8-9-8z" fill="#e0203c"/>
+  <circle cx="22" cy="14" r="3.4" fill="#3fd8e8"/><circle cx="42" cy="14" r="3.4" fill="#f2c14e"/>
+  <circle cx="32" cy="9.5" r="3.2" fill="#a88cff"/>
+  <circle cx="28.5" cy="23" r="1.8" fill="#fff"/><circle cx="35.5" cy="23" r="1.8" fill="#fff"/>
+  <path d="M26 49h12v3H26z" fill="#f2c14e"/>
+  <path d="M27 55.5c2.6 1.6 7.4 1.6 10 0" stroke="#f2c14e" stroke-width="2" stroke-linecap="round"/>
+</svg>
+</template>
+
+<header class="top">
+  <div class="brand">
+    <span id="logoSlot"></span>
+    <h1>JOKER <span>WASH</span> &amp; PLAY<small>LAVANDERÍA · CASINO · TERRAZA</small></h1>
+  </div>
+  <nav id="nav"></nav>
+</header>
+
+<aside class="panel" id="panel">
+  <div class="kicker" id="pKick">SECCIÓN</div>
+  <h2 id="pTitle">—</h2>
+  <p id="pDesc">—</p>
+  <ul id="pList"></ul>
+  <button class="back" id="pBack">← VOLVER AL EXTERIOR</button>
+</aside>
+
+<div id="tip"></div>
+<div id="hint">ARRASTRÁ PARA ORBITAR · SCROLL PARA ZOOM · <b>CLICK EN UNA SECCIÓN PARA ENTRAR</b></div>
+<div id="flash"></div>
+<div id="load"><div><span id="logoSlot2"></span><p>CARGANDO EL LOCAL…</p></div></div>
+
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+</script>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
