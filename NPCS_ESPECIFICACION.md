@@ -18,6 +18,14 @@ Catálogo completo de los 10 personajes interactivos modelados mediante primitiv
 | **NPC-08** | **Marcos** | Cliente Regular | Fumadores (Mesa Alta) | `#a88cff` (Lila) | 20:00 - 22:30 | Observa slots, fuma y chequea el timer de lavado en su móvil |
 | **NPC-09** | **Nicolás** | Mesero Terraza | Terraza (Deck Sky Bar)| `#e0203c` (Rojo) | 18:00 - 02:00 | Servicio a mesas con sombrilla y reposición de lounge exterior |
 | **NPC-10** | **Sofía** | Cliente Lounge | Terraza (Lounge Relax)| `#3fd8e8` (Cian) | 19:30 - 21:00 | Disfruta de un cóctel al aire libre esperando el aviso de retiro |
+| **NPC-11** | **Bruno** | Bartender Sky Bar | Terraza (Barra Superior)| `#f2c14e` (Oro) | 18:00 - 04:00 | Preparación de coctelería premium al aire libre en la azotea |
+| **NPC-12** | **Elena** | DJ Residente | Terraza (Lounge Sky Bar)| `#a88cff` (Lila) | 20:00 - 03:00 | Ambientación musical lounge y control de iluminación rítmica |
+| **NPC-13** | **Matías** | Cliente Terraza | Terraza (Mesa Sombrilla)| `#3fd8e8` (Cian) | 19:00 - 22:00 | Degusta tragos al aire libre con vista a la vereda nocturna |
+| **NPC-14** | **Julián** | Croupier Blackjack | Casino (Mesa Blackjack)| `#f2c14e` (Oro) | 18:00 - 03:00 | Reparto de cartas, control de seguro y pago de apuestas 3:2 |
+| **NPC-15** | **Clara** | Jugadora de Póker | Casino (Mesa Póker) | `#e0203c` (Rojo) | 20:00 - 01:00 | Participa en la mesa de Texas Hold'em en vivo |
+| **NPC-16** | **Ignacio** | Cliente en Barra | Casino (Barra Tragos) | `#3fd8e8` (Cian) | 19:00 - 23:00 | Espera el ciclo de lavado disfrutando de un aperitivo en barra |
+| **NPC-17** | **Valeria** | Cliente Lavandería | Lavandería (Lavarropas) | `#3fd8e8` (Cian) | 15:00 - 18:30 | Carga y descarga de prendas en las lavadoras de alta capacidad |
+| **NPC-18** | **Gonzalo** | Apostador Slots VIP | Fumadores (Tragamonedas)| `#a88cff` (Lila) | 21:00 - 02:00 | Jugadas continuas en las máquinas tragamonedas con extractor |
 
 ---
 
@@ -129,6 +137,80 @@ Catálogo completo de los 10 personajes interactivos modelados mediante primitiv
   2. `[-13.0, 7.5, 4.5]` (mirador hacia la vereda y farolas de la calle)
 * **Animaciones**:
   * `idle`/`work`: Sentada descansando, disfrutando de la música ambiental y la vista nocturna mientras su ropa cumple el ciclo de secado.
+
+### NPC-11: Bruno — Bartender Sky Bar (Terraza)
+* **Ubicación inicial**: `x = -8.0, y = 7.5, z = -9.0` (estación de servicio interior de la barra superior del Sky Bar).
+* **Indumentaria 3D**: Chaleco negro de alta coctelería con ribetes dorados (`#181720`), camisa oscura arremangada, moño satinado oro. Sostiene una coctelera shaker cromada.
+* **Waypoints de patrulla**:
+  1. `[-10.2, 7.5, -9.0]` (zona de botellas y copas)
+  2. `[-8.0, 7.5, -9.0]` (centro de despacho)
+  3. `[-5.8, 7.5, -9.0]` (atención directa a clientes de taburete)
+* **Animaciones**:
+  * `work`: Agitado enérgico de coctelera (`shake`), servicio con movimiento fluido de brazos y pulido de cristalería bajo la iluminación dorada del cartel 'SKY BAR'.
+
+### NPC-12: Elena — DJ Residente Sky Bar
+* **Ubicación inicial**: `x = 9.5, y = 7.5, z = 7.0` (sector lounge bajo las guirnaldas de luces).
+* **Indumentaria 3D**: Atuendo moderno violeta ahumado (`#3d285c`), auriculares circumaurales y tableta de mezclas digital en mano.
+* **Waypoints de patrulla**:
+  1. `[9.5, 7.5, 7.0]` (cabina de audio)
+  2. `[11.5, 7.5, 6.0]` (ecualizador y monitores)
+* **Animaciones**:
+  * `work`: Manipulación rítmica de faders en la consola portátil (`inspect`) con balanceo sutil al compás de la música.
+
+### NPC-13: Matías — Cliente Terraza
+* **Ubicación inicial**: `x = 6.0, y = 7.5, z = 3.0` (mesa redonda con sombrilla del deck).
+* **Indumentaria 3D**: Camisa informal azul noche (`#284f66`), pantalón casual, copa luminosa en mano.
+* **Waypoints de patrulla**:
+  1. `[6.0, 7.5, 3.0]` (mesa con sombrilla)
+  2. `[4.0, 7.5, 1.5]` (paseo hacia el mirador)
+* **Animaciones**:
+  * `idle`: Brindis casual, contemplación del horizonte y de las guirnaldas suspendidas.
+
+### NPC-14: Julián — Croupier de Blackjack
+* **Ubicación inicial**: `x = 19.2, y = 0.62, z = -7.4` (detrás de la mesa semicircular de Blackjack del Casino).
+* **Indumentaria 3D**: Chaleco bordó con botonadura dorada (`#541824`), camisa blanca formal, pajarita negra.
+* **Waypoints de patrulla**:
+  1. `[18.6, 0.62, -7.4]` (zapato de cartas)
+  2. `[19.8, 0.62, -7.4]` (distribución hacia las casillas de apuestas)
+* **Animaciones**:
+  * `work`: Reparto rítmico de naipes en abanico (`deal`), comprobación de seguro y señalización de mano del crupier.
+
+### NPC-15: Clara — Jugadora de Póker
+* **Ubicación inicial**: `x = -2.0, y = 0.62, z = 4.8` (cabecera de la mesa de Texas Hold'em).
+* **Indumentaria 3D**: Vestimenta elegante carmesí (`#8a1c32`), postura atenta observando sus fichas y rivales.
+* **Waypoints de patrulla**:
+  1. `[-2.0, 0.62, 4.8]` (posición en mesa)
+  2. `[-2.6, 0.62, 5.4]` (reacomodación de pila de fichas)
+* **Animaciones**:
+  * `work`: Gesto de chequear cartas cubiertas (`inspect`) y cálculo de pozo de fichas.
+
+### NPC-16: Ignacio — Cliente en Barra
+* **Ubicación inicial**: `x = 3.8, y = 0.62, z = 7.0` (taburete frente al Bartender Lucas en la planta baja).
+* **Indumentaria 3D**: Chaqueta verde esmeralda oscuro (`#1b4a56`), vaso corto de whisky.
+* **Waypoints de patrulla**:
+  1. `[3.8, 0.62, 7.0]` (asiento principal de barra)
+  2. `[5.2, 0.62, 7.0]` (conversación con clientes contiguos)
+* **Animaciones**:
+  * `idle`: Apoyo de codo en la mesada de la barra, charla amena y degustación de cóctel.
+
+### NPC-17: Valeria — Cliente Lavandería
+* **Ubicación inicial**: `x = -16.8, y = 0.62, z = -7.5` (frente a la hilera principal de lavarropas).
+* **Indumentaria 3D**: Ropa casual cómoda celeste turquesa (`#3aa4b4`), sostiene canasto/paño textil.
+* **Waypoints de patrulla**:
+  1. `[-18.8, 0.62, -7.5]` (secarropas pared oeste)
+  2. `[-15.5, 0.62, -7.5]` (lavadora central)
+  3. `[-15.0, 0.62, 1.2]` (estación de detergente)
+* **Animaciones**:
+  * `work`: Carga de prendas en el tambor frontal (`fold`) y verificación del visor digital de tiempo restante.
+
+### NPC-18: Gonzalo — Apostador Slots VIP
+* **Ubicación inicial**: `x = 11.5, y = 0.62, z = -8.5` (sala de fumadores frente a los slots con campana extractora).
+* **Indumentaria 3D**: Chaqueta índigo profundo (`#2e2542`), cigarrillo con humo activo en mano.
+* **Waypoints de patrulla**:
+  1. `[10.5, 0.62, -8.5]` (slot de alta denominación 1)
+  2. `[12.8, 0.62, -8.5]` (slot progresivo 2)
+* **Animaciones**:
+  * `work`: Pulsación de rodillos (`smoke`) mientras observa el giro de los carretes bajo el anillo de extracción de humo.
 
 ---
 

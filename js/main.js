@@ -26,14 +26,14 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.22;
+renderer.toneMappingExposure = 1.48;
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x05040a);
+scene.background = new THREE.Color(0x06050e);
 
-// Optimización A2: FogExp2 en lugar de Fog lineal
-scene.fog = new THREE.FogExp2(0x05040a, 0.012);
+// Optimización A2: FogExp2 con menor densidad para mayor claridad visual
+scene.fog = new THREE.FogExp2(0x06050e, 0.007);
 
 const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 500);
 camera.position.set(0, 30, 68);
@@ -47,9 +47,9 @@ controls.maxDistance = 120;
 controls.target.set(0, 6, 0);
 
 /* ---------- Luces (Optimizaciones A1 y A4) ---------- */
-scene.add(new THREE.HemisphereLight(0x6a7ac0, 0x0d0b16, 0.85));
+scene.add(new THREE.HemisphereLight(0x8ea2e8, 0x1e192c, 1.35));
 
-const moon = new THREE.DirectionalLight(0x9fb0ff, 0.95);
+const moon = new THREE.DirectionalLight(0xb4c8ff, 1.45);
 moon.position.set(40, 60, 30);
 moon.castShadow = true;
 moon.shadow.mapSize.set(1024, 1024); // Reducido de 2048 a 1024
@@ -196,11 +196,11 @@ scene.add(world);
     box(3, 0.02, 0.35, GLOW(0xf2c14e, 0.35), i * 7, 0.01, 30, world);
   }
 
-  // Farolas con segmentos reducidos (8) y luces puntuales optimizadas (16 inten, 18 dist)
+  // Farolas con iluminación nocturna enriquecida
   [-30, -10, 10, 30].forEach(x => {
     cyl(0.16, 0.2, 7, 8, M(0x1b1a22, { metalness: 0.6, roughness: 0.4 }), x, 3.5, 20, world);
-    cyl(0.5, 0.35, 0.4, 8, GLOW(0xffd9a0, 2.2), x, 7.1, 20, world);
-    const p = new THREE.PointLight(0xffcf9a, 16, 18, 2);
+    cyl(0.5, 0.35, 0.4, 8, GLOW(0xffd9a0, 2.5), x, 7.1, 20, world);
+    const p = new THREE.PointLight(0xffdfb0, 26, 24, 2);
     p.position.set(x, 6.8, 20);
     world.add(p);
   });
@@ -277,13 +277,95 @@ const matVidrio = new THREE.MeshPhysicalMaterial({
     wings[key] = { group: g, ceiling, glass, interior: null };
   });
 
-  // Parapeto de la terraza
+  // Parapeto de la terraza (con apertura en el lateral este para acceso de escalera)
   const par = M(0x232029, { roughness: 0.9 });
   const TW = W * 3, TZ = D;
   box(TW + 0.6, 1.1, 0.4, par, 0, H + 1.65, TZ / 2, shell);
   box(TW + 0.6, 1.1, 0.4, par, 0, H + 1.65, -TZ / 2, shell);
   box(0.4, 1.1, TZ, par, -TW / 2, H + 1.65, 0, shell);
-  box(0.4, 1.1, TZ, par, TW / 2, H + 1.65, 0, shell);
+  // Lateral derecho: tramo frontal y tramo trasero dejando 3.2m de vano de ingreso (z: -4.8 a -1.6)
+  box(0.4, 1.1, 12.6, par, TW / 2, H + 1.65, 4.7, shell);
+  box(0.4, 1.1, 6.2, par, TW / 2, H + 1.65, -7.9, shell);
+
+  // Marco de entrada y luces de bienvenida a la terraza desde la escalera
+  box(0.3, 2.8, 0.3, M(0x1b1a22), TW / 2, H + 2.5, -1.6, shell);
+  box(0.3, 2.8, 0.3, M(0x1b1a22), TW / 2, H + 2.5, -4.8, shell);
+  box(0.3, 0.3, 3.5, GLOW(C.oro, 1.8), TW / 2, H + 3.8, -3.2, shell);
+})();
+
+// Escalera exterior de acceso a la terraza (Ala Este)
+(function buildEscaleraTerraza() {
+  const TY = H + 1.1; // 7.5m
+  const stairGroup = new THREE.Group();
+  shell.add(stairGroup);
+
+  const stX = 24.1; // Centrada en X respecto al lateral este
+  const zStart = 9.8; // Vereda frontal
+  const zEnd = -1.6;  // Desembarco superior
+  const numSteps = 28;
+
+  // Descanso superior conectado a la entrada de la terraza
+  box(3.4, 0.28, 3.6, M(C.madera, { roughness: 0.75 }), stX - 0.2, TY + 0.06, -3.2, stairGroup);
+  // Baranda perimetral exterior del descanso
+  box(0.12, 1.1, 3.6, M(0x1c1a24), stX + 1.45, TY + 0.65, -3.2, stairGroup);
+  box(3.2, 1.1, 0.12, M(0x1c1a24), stX - 0.1, TY + 0.65, -4.95, stairGroup);
+  // Pasamanos con tira de luz LED neón dorado en el descanso
+  box(0.08, 0.08, 3.6, GLOW(C.oro, 1.8), stX + 1.45, TY + 1.18, -3.2, stairGroup);
+
+  // Escalones del tramo recto
+  for (let i = 0; i < numSteps; i++) {
+    const t = i / (numSteps - 1);
+    const sz = zStart - t * (zStart - zEnd);
+    const sy = 0.5 + t * (TY - 0.5);
+
+    // Huella del escalón
+    box(2.6, 0.18, 0.44, M(0x201e28, { roughness: 0.65, metalness: 0.4 }), stX, sy + 0.09, sz, stairGroup);
+    // Borde iluminado de cortesía con luz ámbar/oro
+    box(2.55, 0.04, 0.06, GLOW(C.oro, 1.4), stX, sy + 0.16, sz + 0.20, stairGroup);
+  }
+
+  // Zancas estructurales inclinadas de acero
+  const len = Math.hypot(zStart - zEnd, TY - 0.5);
+  const ang = Math.atan2(TY - 0.5, zStart - zEnd);
+
+  [-1.25, 1.25].forEach(side => {
+    const zanca = box(0.14, 0.45, len + 0.6, M(0x16141e, { metalness: 0.7, roughness: 0.35 }), stX + side, (TY + 0.5) / 2, (zStart + zEnd) / 2, stairGroup);
+    zanca.rotation.x = ang;
+
+    // Pasamanos y baranda
+    const rail = box(0.08, 0.08, len + 0.6, GLOW(C.oro, 1.6), stX + side, (TY + 0.5) / 2 + 1.1, (zStart + zEnd) / 2, stairGroup);
+    rail.rotation.x = ang;
+
+    // Parantes verticales de la baranda
+    for (let k = 0; k <= 7; k++) {
+      const kt = k / 7;
+      const pz = zStart - kt * (zStart - zEnd);
+      const py = 0.5 + kt * (TY - 0.5) + 0.55;
+      cyl(0.04, 0.04, 1.1, 6, M(0x1c1a24), stX + side, py, pz, stairGroup);
+    }
+  });
+
+  // Columnas verticales de soporte a tierra
+  [7.0, 3.8, 0.6].forEach(pz => {
+    const kt = (zStart - pz) / (zStart - zEnd);
+    const colH = 0.5 + kt * (TY - 0.5);
+    cyl(0.18, 0.22, colH, 8, M(0x16141e, { metalness: 0.6 }), stX, colH / 2, pz, stairGroup);
+  });
+
+  // Iluminación puntual dedicada para la escalera
+  const plStairMid = new THREE.PointLight(0xffd79a, 24, 16, 2);
+  plStairMid.position.set(stX, 4.5, 4.0);
+  stairGroup.add(plStairMid);
+
+  const plStairTop = new THREE.PointLight(0xffdfb8, 30, 16, 2);
+  plStairTop.position.set(stX, TY + 2.6, -3.2);
+  stairGroup.add(plStairTop);
+
+  // Cartel tótem neón en la base de la escalera sobre la vereda
+  const signCol = cyl(0.12, 0.12, 3.8, 8, M(0x14131a, { metalness: 0.7 }), stX + 1.4, 2.0, 10.6, stairGroup);
+  const stSign = sign('↑ SKY BAR TERRAZA', 5.2, 1.3, '#f2c14e', stairGroup);
+  stSign.position.set(stX, 3.4, 10.6);
+  neonSigns.push(stSign);
 })();
 
 shell.add(marquee);
@@ -454,15 +536,18 @@ function buildLavanderia() {
 
   const s = sign('LAVADO - BLANQUERÍA - CALZADO', 11, 1.9, '#3fd8e8', g);
   s.position.set(cx, 5.6, -10.4);
-  luzTecho(cx - 3.5, -6, g, 0xd8f4ff, 1.3);
-  luzTecho(cx + 3.5, -6, g, 0xd8f4ff, 1.3);
-  luzTecho(cx - 3.5, 4, g, 0xd8f4ff, 1.3);
-  luzTecho(cx + 3.5, 4, g, 0xd8f4ff, 1.3);
+  luzTecho(cx - 3.5, -6, g, 0xd8f4ff, 1.5);
+  luzTecho(cx + 3.5, -6, g, 0xd8f4ff, 1.5);
+  luzTecho(cx - 3.5, 4, g, 0xd8f4ff, 1.5);
+  luzTecho(cx + 3.5, 4, g, 0xd8f4ff, 1.5);
 
-  // Optimización A4: Luz puntual reducida (22 inten, 18 dist)
-  const pl = new THREE.PointLight(0xbfe9ff, 22, 18, 2);
+  // Iluminación general e iluminación de mostrador en Lavandería
+  const pl = new THREE.PointLight(0xd4f4ff, 38, 22, 2);
   pl.position.set(cx, 4.6, -2);
   g.add(pl);
+  const plLav2 = new THREE.PointLight(0x3fd8e8, 24, 16, 2);
+  plLav2.position.set(cx, 4.2, 4.0);
+  g.add(plLav2);
 
   wings.lavanderia.interior = g;
 }
@@ -527,17 +612,20 @@ function buildCasino() {
   for (let i = 0; i < 4; i++) cyl(0.35, 0.3, 0.2, 8, M(0x4a1f2c), cx + 2.2 + i * 1.6, 1.9, 6.9, g);
   for (let i = 0; i < 10; i++) box(0.22, 0.6, 0.22, GLOW([0xf2c14e, 0xe0203c, 0x3fd8e8][i % 3], 0.7), cx + 2 + i * 0.55, 3.1, 8.8, g);
 
-  // Arañas de luz optimizadas (28 inten, 16 dist)
+  // Arañas de luz dorada en Casino
   [[cx - 3.4, -5.6], [cx + 4.2, -3.8], [cx - 3.2, 3.6]].forEach(([x, z]) => {
     cyl(0.05, 0.05, 1.2, 6, M(0x2a2733), x, H - 0.2, z, g);
-    const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 1), GLOW(0xffe1a8, 1.8));
+    const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 1), GLOW(0xffe1a8, 2.2));
     b.position.set(x, H - 0.9, z);
     g.add(b);
-    const p = new THREE.PointLight(0xffd79a, 28, 16, 2);
+    const p = new THREE.PointLight(0xffe0a8, 44, 22, 2);
     p.position.set(x, H - 1.1, z);
     g.add(p);
   });
-  luzTecho(cx, 9, g, 0xff6a86, 1.1, 8);
+  luzTecho(cx, 9, g, 0xff6a86, 1.6, 8);
+  const plBar = new THREE.PointLight(0xff9966, 32, 16, 2);
+  plBar.position.set(cx + 4.6, 4.0, 7.5);
+  g.add(plBar);
 
   wings.casino.interior = g;
 }
@@ -609,14 +697,17 @@ function buildFumadores() {
   const sv = sign('VENTILACION 100%', 5.6, 1.1, '#3fd8e8', g);
   sv.position.set(cx, 4.0, -10.4);
 
-  luzTecho(cx - 3, -6, g, 0xb69cff, 1.2);
-  luzTecho(cx + 3, -6, g, 0xb69cff, 1.2);
-  luzTecho(cx - 3, 5, g, 0xb69cff, 1.2);
-  luzTecho(cx + 3, 5, g, 0xb69cff, 1.2);
+  luzTecho(cx - 3, -6, g, 0xb69cff, 1.5);
+  luzTecho(cx + 3, -6, g, 0xb69cff, 1.5);
+  luzTecho(cx - 3, 5, g, 0xb69cff, 1.5);
+  luzTecho(cx + 3, 5, g, 0xb69cff, 1.5);
 
-  const pl = new THREE.PointLight(0xb69cff, 22, 16, 2);
+  const pl = new THREE.PointLight(0xd0beff, 36, 20, 2);
   pl.position.set(cx, 4.6, -1);
   g.add(pl);
+  const plFum2 = new THREE.PointLight(0xa88cff, 24, 16, 2);
+  plFum2.position.set(cx, 4.2, 5.0);
+  g.add(plFum2);
 
   // Optimización A7: Humo reducido de 220 a 80 partículas
   const cv = document.createElement('canvas');
@@ -719,13 +810,17 @@ function buildTerraza() {
     }
   }
 
-  // Luces terraza optimizadas
-  const pl = new THREE.PointLight(0xffcf9a, 30, 24, 2);
+  // Luces de terraza enriquecidas
+  const pl = new THREE.PointLight(0xffdfb8, 48, 28, 2);
   pl.position.set(0, TY + 4.5, 0);
   g.add(pl);
-  const pl2 = new THREE.PointLight(0xff6a86, 20, 18, 2);
+  const pl2 = new THREE.PointLight(0xff7a98, 32, 22, 2);
   pl2.position.set(-8, TY + 3, -6);
   g.add(pl2);
+  // Luz puntual dorada dedicada sobre el Sky Bar (estación de trabajo del Bartender Bruno)
+  const plSkyBar = new THREE.PointLight(0xf2c14e, 38, 18, 2);
+  plSkyBar.position.set(-8, TY + 3.2, -8.0);
+  g.add(plSkyBar);
 }
 
 buildLavanderia();
@@ -984,6 +1079,104 @@ function initNpcs() {
     ],
     workAnim: 'idle'
   });
+
+  // 11. Terraza - Bartender Sky Bar (Requerimiento especial: Bartender en la terraza)
+  createNPC({
+    id: 'ter_bruno', name: 'Bruno', role: 'Bartender Sky Bar', acc: '#f2c14e',
+    x: -8.0, y: TY, z: -9.0, rot: Math.PI,
+    torsoCol: 0x181720, pantsCol: 0x241a22, hairCol: 0x1a120c, itemType: 'drink',
+    waypoints: [
+      new THREE.Vector3(-10.2, TY, -9.0),
+      new THREE.Vector3(-8.0, TY, -9.0),
+      new THREE.Vector3(-5.8, TY, -9.0)
+    ],
+    workAnim: 'shake'
+  });
+
+  // 12. Terraza - DJ Residente Sky Bar
+  createNPC({
+    id: 'ter_elena', name: 'Elena', role: 'DJ Residente', acc: '#a88cff',
+    x: 9.5, y: TY, z: 7.0, rot: -1.2,
+    torsoCol: 0x3d285c, pantsCol: 0x191624, hairCol: 0x3b1c1c, itemType: 'tablet',
+    waypoints: [
+      new THREE.Vector3(9.5, TY, 7.0),
+      new THREE.Vector3(11.5, TY, 6.0)
+    ],
+    workAnim: 'inspect'
+  });
+
+  // 13. Terraza - Cliente en mesa con sombrilla
+  createNPC({
+    id: 'ter_matias', name: 'Matías', role: 'Cliente Terraza', acc: '#3fd8e8',
+    x: 6.0, y: TY, z: 3.0, rot: 1.0,
+    torsoCol: 0x284f66, pantsCol: 0x20242e, hairCol: 0x241d18, itemType: 'drink',
+    waypoints: [
+      new THREE.Vector3(6.0, TY, 3.0),
+      new THREE.Vector3(4.0, TY, 1.5)
+    ],
+    workAnim: 'idle'
+  });
+
+  // 14. Casino - Croupier de Blackjack
+  createNPC({
+    id: 'cas_julian', name: 'Julián', role: 'Croupier Blackjack', acc: '#f2c14e',
+    x: XW.casino + 4.2, y: 0.62, z: -7.4, rot: Math.PI,
+    torsoCol: 0x541824, pantsCol: 0x14121a, hairCol: 0x201815,
+    waypoints: [
+      new THREE.Vector3(XW.casino + 3.6, 0.62, -7.4),
+      new THREE.Vector3(XW.casino + 4.8, 0.62, -7.4)
+    ],
+    workAnim: 'deal'
+  });
+
+  // 15. Casino - Jugadora de Póker
+  createNPC({
+    id: 'cas_clara', name: 'Clara', role: 'Jugadora Póker', acc: '#e0203c',
+    x: XW.casino - 2.0, y: 0.62, z: 4.8, rot: -2.2,
+    torsoCol: 0x8a1c32, pantsCol: 0x121016, hairCol: 0x15100c, itemType: 'drink',
+    waypoints: [
+      new THREE.Vector3(XW.casino - 2.0, 0.62, 4.8),
+      new THREE.Vector3(XW.casino - 2.6, 0.62, 5.4)
+    ],
+    workAnim: 'inspect'
+  });
+
+  // 16. Casino - Cliente en la barra de tragos
+  createNPC({
+    id: 'cas_ignacio', name: 'Ignacio', role: 'Cliente Barra', acc: '#3fd8e8',
+    x: XW.casino + 3.8, y: 0.62, z: 7.0, rot: 0,
+    torsoCol: 0x1b4a56, pantsCol: 0x1c1e26, hairCol: 0x2a221d, itemType: 'drink',
+    waypoints: [
+      new THREE.Vector3(XW.casino + 3.8, 0.62, 7.0),
+      new THREE.Vector3(XW.casino + 5.2, 0.62, 7.0)
+    ],
+    workAnim: 'idle'
+  });
+
+  // 17. Lavandería - Cliente cargando ropa
+  createNPC({
+    id: 'lav_valeria', name: 'Valeria', role: 'Cliente Lavandería', acc: '#3fd8e8',
+    x: XW.lavanderia - 1.8, y: 0.62, z: -7.5, rot: 0,
+    torsoCol: 0x3aa4b4, pantsCol: 0x222a30, hairCol: 0x3d2018, itemType: 'cloth',
+    waypoints: [
+      new THREE.Vector3(XW.lavanderia - 3.8, 0.62, -7.5),
+      new THREE.Vector3(XW.lavanderia - 0.5, 0.62, -7.5),
+      new THREE.Vector3(XW.lavanderia, 0.62, 1.2)
+    ],
+    workAnim: 'fold'
+  });
+
+  // 18. Fumadores - Apostador en Tragamonedas VIP
+  createNPC({
+    id: 'fum_gonzalo', name: 'Gonzalo', role: 'Apostador Slots VIP', acc: '#a88cff',
+    x: XW.fumadores - 3.5, y: 0.62, z: -8.5, rot: 0,
+    torsoCol: 0x2e2542, pantsCol: 0x1c1926, hairCol: 0x1e1620, itemType: 'cig',
+    waypoints: [
+      new THREE.Vector3(XW.fumadores - 4.5, 0.62, -8.5),
+      new THREE.Vector3(XW.fumadores - 2.2, 0.62, -8.5)
+    ],
+    workAnim: 'smoke'
+  });
 }
 initNpcs();
 
@@ -1141,8 +1334,53 @@ const colliders = [
 ];
 
 function checkCollision(x, z, r = playerRadius) {
-  // Límites del mundo exterior transitable
+  // Si el jugador está en nivel superior (escalera alta o terraza)
+  if (playerPos.y >= 5.2) {
+    // Límites generales exteriores
+    if (x < -23.0 || x > 26.2 || z < -11.5 || z > 11.5) return true;
+
+    // En la terraza (x entre -22.5 y 22.5)
+    if (x >= -22.5 && x <= 22.5) {
+      // Parapeto frontal
+      if (z + r > 10.6) return true;
+      // Parapeto trasero
+      if (z - r < -10.6) return true;
+      // Parapeto lateral oeste
+      if (x - r < -22.1) return true;
+      // Parapeto lateral este: permite paso libre solo en el vano de la escalera (z entre -4.8 y -1.6)
+      if (x + r > 22.1 && (z > -1.6 || z < -4.8)) return true;
+      // Barra del Sky Bar
+      if (x + r > -12.5 && x - r < -3.5 && z + r > -9.4 && z - r < -7.4) return true;
+      return false;
+    }
+
+    // En la plataforma de descanso de la escalera
+    if (x > 22.5 && x <= 25.8 && z >= -5.0 && z <= -1.6) {
+      if (x + r > 25.7) return true;
+      if (z - r < -5.0) return true;
+      return false;
+    }
+
+    // En el tramo alto de la escalera
+    if (x > 22.5 && x <= 25.8 && z > -1.6 && z <= 10.2) {
+      if (x + r > 25.7) return true;
+      if (x - r < 22.6) return true;
+      return false;
+    }
+
+    return false;
+  }
+
+  // Si el jugador está en planta baja / vereda / calle
   if (x < -28 || x > 28 || z < -10.8 || z > 32) return true;
+
+  // Acceso a la base de la escalera en la vereda lateral este (x entre 22.6 y 25.8, z entre 0.0 y 10.5)
+  const enAccesoEscalera = (x >= 22.6 && x <= 25.8 && z >= -1.0 && z <= 10.5);
+  if (enAccesoEscalera) {
+    if (x + r > 25.7) return true;
+    if (x - r < 22.6 && z < 10.0) return true; // Pared este del edificio
+    return false;
+  }
 
   for (let i = 0; i < colliders.length; i++) {
     const c = colliders[i];
@@ -1189,15 +1427,43 @@ function toggleFPS(force) {
 }
 
 function getTargetEyeHeight(x, z) {
-  // Si está dentro de la planta baja
-  if (x > -22.5 && x < 22.5 && z < FRONT && z > -11) {
-    return 0.62 + 1.7; // Piso planta baja + altura de ojos
+  const TY = H + 1.1; // 7.5m
+
+  // 1. En la escalera exterior este
+  if (x >= 22.4 && x <= 25.8) {
+    // Tramo de escalones de subida (z de 9.8 a -1.6)
+    if (z <= 9.8 && z >= -1.6) {
+      const progress = Math.max(0, Math.min(1, (9.8 - z) / (9.8 - (-1.6))));
+      const groundY = 0.5 + progress * (TY - 0.5);
+      return groundY + 1.7;
+    }
+    // Descanso superior
+    if (z < -1.6 && z >= -5.0) {
+      return TY + 1.7; // 9.2m
+    }
   }
-  // Vereda
+
+  // 2. En la terraza del primer piso (o pasando por el vano de entrada)
+  if (x >= -22.5 && x <= 22.5 && z <= FRONT && z >= -11.0) {
+    // Si el jugador ya está en la altura de la terraza (o viene subiendo de la escalera)
+    if (playerPos.y >= 5.0) {
+      return TY + 1.7; // 9.2m
+    }
+    // Si no, está en la planta baja interior
+    return 0.62 + 1.7; // 2.32m
+  }
+
+  // 3. Vano de conexión entre el descanso y la terraza
+  if (x > 21.0 && x < 23.0 && z >= -5.0 && z <= -1.6 && playerPos.y >= 5.0) {
+    return TY + 1.7;
+  }
+
+  // 4. Vereda
   if (z <= 17) {
     return 0.5 + 1.7;
   }
-  // Calle
+
+  // 5. Calle
   return 0.0 + 1.7;
 }
 
@@ -1285,8 +1551,12 @@ function updateFPSPlayer(dt) {
   playerPos.y += (targetY - playerPos.y) * Math.min(dt * 10, 1);
   camera.position.copy(playerPos);
 
-  // Detección automática del ala en la que se encuentra el jugador
-  if (playerPos.z < FRONT && playerPos.z > -10.5) {
+  // Detección automática del sector en el que se encuentra el jugador
+  if (playerPos.y >= 5.5) {
+    if (current !== 'terraza') {
+      enterSilently('terraza');
+    }
+  } else if (playerPos.z < FRONT && playerPos.z > -10.5 && playerPos.x >= -22.5 && playerPos.x <= 22.5) {
     let activeKey = null;
     if (playerPos.x < -7.5) activeKey = 'lavanderia';
     else if (playerPos.x > 7.5) activeKey = 'fumadores';
@@ -1295,7 +1565,7 @@ function updateFPSPlayer(dt) {
     if (activeKey && activeKey !== current) {
       enterSilently(activeKey);
     }
-  } else if (playerPos.z >= FRONT && current) {
+  } else if ((playerPos.z >= FRONT || playerPos.x > 22.5 || playerPos.x < -22.5) && current) {
     exitSilently();
   }
 }
